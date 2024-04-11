@@ -53,6 +53,13 @@ async function deleteTask(id) {
   fetchTasks();
 }
 
+async function toggleTask(id, completed) {
+  console.log("🚀 ~ toggleTask ~ completed:", completed)
+  await db.updateDocument(DATABASE_ID, COLLECTION_ID_TASKS, id, {
+    completed: !completed
+  });
+  fetchTasks();
+}
 </script>
 
 <template>
@@ -72,13 +79,12 @@ async function deleteTask(id) {
     <button type="button" @click="fetchTasks"> fetchTasks</button>
   </div>
 
-
-  <div class="task-list" v-for="task in tasks.documents" :key="task.$id">
-    <input type="checkbox" name="task" :checked="task.completed">
-
-
-    <p :class="task.completed ? 'completed' : ''">{{ task.body }}</p>
-    <strong class="delete" :id="`delete-${task.$id}`" @click="deleteTask(task.$id)">x</strong>
+  <div class="task-wrapper">
+    <div class="task" v-for="task in tasks.documents" :key="task.$id">
+      <input type="checkbox" name="task" :checked="task.completed" @click="toggleTask(task.$id, task.completed)">
+      <p :class="task.completed ? 'completed' : ''">{{ task.body }}</p>
+      <strong class="delete" :id="`delete-${task.$id}`" @click="deleteTask(task.$id)">x</strong>
+    </div>
   </div>
 </template>
 
@@ -160,34 +166,37 @@ async function deleteTask(id) {
   }
 }
 
-.task-list {
-  display: flex;
-  justify-content: start;
-  align-items: center;
-  padding: .4rem;
-  border-radius: 10px;
-  border: 1px solid var(--color-dark);
-  margin: 1rem 0;
-  gap: 1rem;
-  max-width: 300px;
+.task-wrapper {
+  .task {
+    display: flex;
+    justify-content: start;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: .4rem;
+    border-radius: 10px;
+    border: 1px solid var(--color-dark);
+    margin: 1rem 0;
+    gap: 1rem;
+    max-width: 300px;
 
-  p {
-    margin: 0 .5rem;
-    text-align: start;
-  }
+    p {
+      margin: 0 .5rem;
+      text-align: start;
+    }
 
-  .delete {
-    color: #FE4E6F;
-    font-size: 22px;
-    cursor: pointer;
-    margin: 0 5% 0 auto;
-  }
+    .delete {
+      color: #FE4E6F;
+      font-size: 22px;
+      cursor: pointer;
+      margin: 0 5% 0 auto;
+    }
 
-  .completed {
-    text-decoration: line-through;
-    text-decoration-thickness: 2px;
-    text-decoration-color: var(--color-dark);
-    font-style: italic;
+    .completed {
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+      text-decoration-color: var(--color-dark);
+      font-style: italic;
+    }
   }
 }
 
